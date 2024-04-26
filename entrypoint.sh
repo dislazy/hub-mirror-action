@@ -10,6 +10,9 @@ mkdir -p /root/.ssh
 echo "${INPUT_DST_KEY}" > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
+
+python3 -m venv /hub-mirror/venv
+source /hub-mirror/venv/bin/activate
 pip3 install -r /hub-mirror/requirements.txt
 
 python3 /hub-mirror/hubmirror.py --src "${INPUT_SRC}" --dst "${INPUT_DST}" \
