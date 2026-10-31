@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
     - 'hub-mirror/**'
-    # Runs at every pull requests submitted in master branch
-    branches: [ master ]
+    # Runs at every pull requests submitted in main branch
+    branches: [ main ]
 
 jobs:
   build:

@@ -2,14 +2,14 @@ name: Tests / test-user-mirror (cached)
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
     - 'hub-mirror/**'
     - 'action.yml'
     - 'entrypoint.sh'
     - 'Dockerfile'
   pull_request_target:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 jobs:

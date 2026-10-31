@@ -23,7 +23,7 @@
 ```yaml
 steps:
 - name: Mirror the Github organization repos to Gitee.
-  uses: Dislazy/hub-mirror-action@master
+  uses: Dislazy/hub-mirror-action@main
   with:
     src: github.com/kunpengcompute
     dst: gitee.com/kunpengcompute
@@ -36,7 +36,7 @@ steps:
     mappings: "yikun.github.com=>blog"
 ```
 
-上面的配置完成了kunpencompute组织从github到gitee的同步，你可以在[测试和demo](https://github.com/dislazy/hub-mirror-action/tree/master/.github/workflows)找到完整用法。
+上面的配置完成了kunpencompute组织从github到gitee的同步，你可以在[测试和demo](https://github.com/dislazy/hub-mirror-action/tree/main/.github/workflows)找到完整用法。
 
 
 ## 参数详解

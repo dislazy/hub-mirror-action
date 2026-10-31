@@ -9,7 +9,7 @@ Action for mirroring repos between Hubs (like Github and Gitee and more)
 ```yaml
 steps:
 - name: Mirror the Github organization repos to Gitee.
-  uses: Dislazy/hub-mirror-action@master
+  uses: Dislazy/hub-mirror-action@main
   with:
     src: github.com/kunpengcompute
     dst: gitee.com/kunpengcompute
