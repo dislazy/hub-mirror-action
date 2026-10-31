@@ -53,6 +53,14 @@ steps:
 - `timeout` 默认为'30m', 用于设置每个git命令的超时时间，'600'=>600s, '30m'=>30 mins, '1h'=>1 hours
 - `mappings` 源仓库映射规则，比如'A=>B, C=>CC', A会被映射为B，C会映射为CC，映射不具有传递性。主要用于源和目的仓库名不同的镜像。
 
+## 运行环境与依赖
+
+- 基础镜像固定为 `ubuntu:24.04`，不再跟随浮动的 `ubuntu` tag（浮动 tag 从 20.04 跳到 24.04 时，OpenSSH 默认值与 pip 策略同时变化，会直接打断同步）。
+- Python 依赖固定版本，见 [`hub-mirror/requirements.txt`](./hub-mirror/requirements.txt)，改为**构建镜像时**安装，不再每次运行都去 PyPI 下载。
+- 容器内保持 `StrictHostKeyChecking no`，并额外放开 `ssh-rsa` 签名：旧镜像自带 OpenSSH 8.2，该算法默认可用；若你的 hub 只支持 rsa-sha2、或希望更严格的安全策略，删掉 `Dockerfile` 里对应的两行即可。
+- `Dockerfile` 设置了 `git safe.directory`，避免 `actions/cache` 恢复缓存后 git 因属主不一致报 `dubious ownership`。
+- [`.github/dependabot.yml`](./.github/dependabot.yml) 每周自动跟进 actions / pip / docker 版本，避免再次落后。
+
 ## FAQ
 
 - 如何在secrets添加dst_key？

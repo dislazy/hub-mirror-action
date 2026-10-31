@@ -1,42 +1,56 @@
+name: Tests / test-user-mirror (cached)
+
 on:
   push:
+    branches: [master]
+    paths:
+    - 'hub-mirror/**'
+    - 'action.yml'
+    - 'entrypoint.sh'
+    - 'Dockerfile'
   pull_request_target:
     branches: [master]
-name: Tests / test-user-mirror (cached)
+  workflow_dispatch:
+
 jobs:
   run:
     name: Run
     runs-on: ubuntu-latest
+    env:
+      # 没有配置这个 secret 时跳过同步步骤，避免示例 workflow 直接报红
+      DST_KEY: ${{ secrets.GITEE_PRIVATE_KEY }}
     steps:
     - name: Checkout source code
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
 
     - name: Get Time
       id: get-time
+      # `::set-output` 已于 2022 年被禁用，改用 $GITHUB_OUTPUT
       run: |
-        echo "::set-output name=date::$(/bin/date -u "+%Y%m%d%H%M%S")"
+        echo "date=$(/bin/date -u "+%Y%m%d%H%M%S")" >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: Cache src repos
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       id: cache
       with:
         path: ${{ github.workspace }}/hub-mirror-cache
         key: ${{ runner.os }}-hub-repos-cache-${{ steps.get-time.outputs.date }}
         restore-keys: ${{ runner.os }}-hub-repos-cache
 
-    - name: Mirror Github to Gitee with white list and cache
-      uses: ./.
+    - name: Mirror Github to Gitee with static list and cache
+      if: env.DST_KEY != ''
+      uses: ./
       with:
-        src: github/Yikun
-        dst: gitee/yikunkero
-        dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-        dst_token:  ${{ secrets.GITEE_TOKEN }}
+        src: github.com/Yikun
+        dst: gitee.com/yikunkero
+        dst_key: ${{ env.DST_KEY }}
         cache_path: /github/workspace/hub-mirror-cache
-        white_list: 'hub-mirror-action, hexo-migrator-github-issue'
+        static_list: 'hub-mirror-action, hexo-migrator-github-issue'
         force_update: true
         mappings: 'hashes=>hashes_gitee'
         debug: false
+
     - name: Print cache path
       run: |
         ls -la ${{ github.workspace }}/hub-mirror-cache

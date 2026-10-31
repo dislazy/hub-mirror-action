@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Parameter hand-off only: git, ssh and the pinned python venv already live in
+# the image (see Dockerfile), so nothing is installed at run time any more.
+# Every input arrives as INPUT_* from action.yml.
 
 DEBUG="${INPUT_DEBUG}"
 
@@ -7,21 +11,14 @@ if [[ "$DEBUG" == "true" ]]; then
 fi
 
 mkdir -p /root/.ssh
-echo "${INPUT_DST_KEY}" > /root/.ssh/id_rsa
+printf '%s\n' "${INPUT_DST_KEY}" > /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
-
-python3 -m venv /hub-mirror/venv
-source /hub-mirror/venv/bin/activate
-pip3 install -r /hub-mirror/requirements.txt
-
-python3 /hub-mirror/hubmirror.py --src "${INPUT_SRC}" --dst "${INPUT_DST}" \
---cache-path "${INPUT_CACHE_PATH}" \
---static-list "${INPUT_STATIC_LIST}" \
---force-update "${INPUT_FORCE_UPDATE}" \
---debug "${INPUT_DEBUG}" \
---timeout  "${INPUT_TIMEOUT}" \
---mappings  "${INPUT_MAPPINGS}"
-
-# Skip original code
-exit $?
+# exec keeps the exit code of the mirror run, same as the old `exit $?`.
+exec python3 /hub-mirror/hubmirror.py --src "${INPUT_SRC}" --dst "${INPUT_DST}" \
+  --cache-path "${INPUT_CACHE_PATH}" \
+  --static-list "${INPUT_STATIC_LIST}" \
+  --force-update "${INPUT_FORCE_UPDATE}" \
+  --debug "${INPUT_DEBUG}" \
+  --timeout "${INPUT_TIMEOUT}" \
+  --mappings "${INPUT_MAPPINGS}"
