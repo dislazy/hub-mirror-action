@@ -44,13 +44,14 @@ steps:
 - `src` 需要被同步的源端账户名，如github.com/kunpengcompute，表示Github的kunpengcompute账户。
 - `dst` 需要同步到的目的端账户名，如gitee.com/kunpengcompute，表示Gitee的kunpengcompute账户。
 - `dst_key` 用于在目的端上传代码的私钥(默认可以从~/.ssh/id_rsa获取），可参考[生成/添加SSH公钥](https://gitee.com/help/articles/4181)或[generating SSH keys](https://docs.github.com/articles/generating-an-ssh-key/)生成，并确认对应公钥已经被正确配置在目的端。对应公钥，Github可以在[这里](https://github.com/settings/keys)配置，Gitee可以[这里](https://gitee.com/profile/sshkeys)配置。
-- `static_list` 默认为'', 配置后，仅同步静态列表，不会再动态获取需同步列表，如“repo1,repo2,repo3”。
+- `static_list` 默认为'', 配置后，仅同步静态列表，不会再动态获取需同步列表，如“repo1,repo2,repo3”。**必传且不能为空**：列表为空时 action 直接报错退出，不再静默空转。
+- `src`/`dst` 必须是「域名/账号」两段（如 `github.com/kunpengcompute`）；格式不对会直接报错，域名不带点（如 `github/Yikun`）会在日志里警告，且不会自动修正。
 
 #### 可选参数
 - `cache_path` 默认为'', 将代码缓存在指定目录，用于与actions/cache配合以加速镜像过程。
 - `force_update` 默认为false, 配置后，启用git push -f强制同步，**注意：开启后，会强制覆盖目的端仓库**。
 - `debug` 默认为false, 配置后，启用debug开关，会显示所有执行命令。
-- `timeout` 默认为'30m', 用于设置每个git命令的超时时间，'600'=>600s, '30m'=>30 mins, '1h'=>1 hours
+- `timeout` 默认为'30m', 用于设置每个git命令的超时时间，'600'=>600s, '30m'=>30 mins, '1h'=>1 hours。非法值（如 `30M`）会回退为 `30m` 并在日志提示，显式传 `0` 仍表示不限时。
 - `mappings` 源仓库映射规则，比如'A=>B, C=>CC', A会被映射为B，C会映射为CC，映射不具有传递性。主要用于源和目的仓库名不同的镜像。
 
 ## 运行环境与依赖

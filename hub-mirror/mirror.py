@@ -22,7 +22,10 @@ class Mirror(object):
         if re.match(r"^\d+[dhms]?$", timeout):
             self.timeout = cov2sec(timeout)
         else:
-            self.timeout = 0
+            # 无效的超时值不能落到 0：0 在 GitPython 里等于「不限时」，
+            # git 命令可能永久挂住，所以回退到默认的 30m 并在日志里说明
+            print("Invalid timeout '%s', fall back to '30m'." % timeout)
+            self.timeout = cov2sec('30m')
         self.force_update = force_update
 
     @retry(wait=wait_exponential(), reraise=True, stop=stop_after_attempt(3))
@@ -51,6 +54,16 @@ class Mirror(object):
         try:
             local_repo = git.Repo(self.repo_path)
         except git.exc.NoSuchPathError:
+            self._clone()
+        except git.exc.InvalidGitRepositoryError:
+            # 缓存目录被污染（半截 clone、空目录、非仓库内容）时，
+            # 删掉重建，而不是连续重试同一个坏目录直到失败
+            print('Invalid git repository at %s, remove and re-clone.'
+                  % self.repo_path)
+            if os.path.isdir(self.repo_path):
+                shutil.rmtree(self.repo_path)
+            else:
+                os.remove(self.repo_path)
             self._clone()
         else:
             print("Updating repo...")

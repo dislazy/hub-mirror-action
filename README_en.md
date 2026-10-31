@@ -30,12 +30,13 @@ Here is a workflow to mirror the kunpengcompute org repos from Github to Gitee, 
 - `src` source account, such as `github.com/kunpengcompute`, is the Github kunpengcompute account.
 - `dst` Destination account, such as `gitee.com/kunpengcompute`, is the Gitee kunpengcompute account.
 - `dst_key` the private key to push code in destination account (default in ~/.ssh/id_rsa), you can see [generating SSH keys](https://docs.github.com/articles/generating-an-ssh-key/) to generate the pri/pub key, and make sure the pub key has been added in destination. You can set Github ssh key in [here](https://github.com/settings/keys)，set the Gitee ssh key in [here](https://gitee.com/profile/sshkeys).
-- `static_list` Only mirror repos in the static list, like 'repo1,repo2,repo3'
+- `static_list` Only mirror repos in the static list, like 'repo1,repo2,repo3'. **Required and must not be empty**: an empty list fails the action instead of silently doing nothing.
+- `src`/`dst` must be two segments '<hub-domain>/<account>' (e.g. `github.com/kunpengcompute`). A wrong format fails with a clear error; a domain without a dot (e.g. `github/Yikun`) only logs a warning.
 
 #### Optional
 - `cache_path` (optional) let code clone in specific path, can be used with actions/cache to speed up mirror.
 - `force_update` (optional) Force to update the destination repo, use '-f' flag do 'git push'
-- `timeout` (optional) Default is '30m', set the timeout for every git command, like '600'=>600s, '30m'=>30 mins, '1h'=>1 hours
+- `timeout` (optional) Default is '30m', set the timeout for every git command, like '600'=>600s, '30m'=>30 mins, '1h'=>1 hours. Invalid values (e.g. `30M`) fall back to `30m` with a log hint; explicit `0` still means no timeout.
 - `mappings` (optional) Default is empty, the source repos mappings, such as 'A=>B, C=>CC', source repo name would be mapped follow the rule: A to B, C to CC. Mapping is not transitive.
 
 ## Environment

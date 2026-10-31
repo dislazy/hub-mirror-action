@@ -37,10 +37,22 @@ class HubMirror(object):
         return parser
 
     def run(self):
-        hub = Hub(
-            self.args.src,
-            self.args.dst
-        )
+        # 本 action 只同步 static_list 里列出的仓库，列表为空时
+        # 明确失败，而不是「什么都不做却报成功」
+        if not self.static_list:
+            print("ERROR: static_list is empty. This action only mirrors "
+                  "the repos listed in static_list, so there is nothing "
+                  "to do.")
+            sys.exit(1)
+
+        try:
+            hub = Hub(
+                self.args.src,
+                self.args.dst
+            )
+        except ValueError as e:
+            print(e)
+            sys.exit(1)
 
         # Using static list when static_list is set
         repos = self.static_list
